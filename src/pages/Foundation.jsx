@@ -1,35 +1,10 @@
-import React, { useState } from "react";
-
-const initialCampaignsData = [
-	{
-		_id: "68c7ee4bc6601be1b4859f2a",
-		foundation: "68bffbce17d798a03f456be4",
-		title: "Run for the Tigersssss",
-		description: "A charity marathon to raise awareness and funds for tiger conservation.",
-		image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRH3buIA2kSsEewzGiolevApayuKS7hzkQV3Q&s",
-		raisedAmount: 0,
-		eventDate: "March 3, 2025",
-		location: "It partk indore",
-		participants: [
-			{
-				_id: "68bbdc63f6f6a065c1b5d166",
-				fullName: "deepak",
-				avatar: "https://isobarscience.com/wp-content/uploads/2020/09/default-profile-picture1.jpg"
-			},
-			{
-				_id: "68bbfb0febbe5c019e1282a0",
-				fullName: "palash",
-				avatar: "https://isobarscience.com/wp-content/uploads/2020/09/default-profile-picture1.jpg"
-			}
-		],
-		status: "active",
-		foundationName: " save tiger foundation,"
-	},
-	// ...other campaigns from user data
-];
+import React, { useEffect, useState } from "react";
+import { getFoundations } from "../api/foundation";
 
 const Foundation = () => {
-	const [campaigns, setCampaigns] = useState(initialCampaignsData);
+	const [campaigns, setCampaigns] = useState([]);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState("");
 	const [form, setForm] = useState({
 		title: "",
 		description: "",
@@ -74,20 +49,51 @@ const Foundation = () => {
 		setImageFile(null);
 	};
 
+	useEffect(() => {
+		let mounted = true;
+		async function load() {
+			setLoading(true);
+			setError("");
+			const res = await getFoundations();
+			if (!mounted) return;
+			setLoading(false);
+			if (res && res.success && Array.isArray(res.data)) {
+				// Map foundation API to campaign-like objects used by this page
+				const mapped = res.data.map((f) => ({
+					_id: f._id,
+					title: f.name || "-",
+					description: f.description || "",
+					eventDate: new Date(f.createdAt).toLocaleDateString(),
+					location: f.website || "",
+					image: f.logo || "",
+					foundationName: f.name || "",
+					participants: [],
+				}));
+				setCampaigns(mapped);
+			} else {
+				setError(res.message || "Failed to load foundations");
+			}
+		}
+		load();
+		return () => {
+			mounted = false;
+		};
+	}, []);
+
 	return (
 		<div>
-			<h2>Foundation Campaigns</h2>
+			<h2 className="text-2xl font-semibold mb-4">Foundation Campaigns</h2>
 			{/* Add Campaign Form */}
-			<div style={{ marginBottom: "32px", padding: "20px", background: "#f4f6fb", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
-				<h3 style={{ marginBottom: "16px" }}>Add Campaign</h3>
-				<form onSubmit={handleSubmit} style={{ display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center" }}>
+			<div className="mb-8 p-5 bg-slate-50 rounded-lg shadow-sm">
+				<h3 className="text-lg font-medium mb-4">Add Campaign</h3>
+				<form onSubmit={handleSubmit} className="flex flex-wrap gap-4 items-center">
 					<input
 						type="text"
 						name="title"
 						placeholder="Title"
 						value={form.title}
 						onChange={handleChange}
-						style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", flex: "1 1 180px" }}
+						className="px-2 py-2 rounded border border-gray-300 flex-1 min-w-[180px]"
 						required
 					/>
 					<input
@@ -96,7 +102,7 @@ const Foundation = () => {
 						placeholder="Description"
 						value={form.description}
 						onChange={handleChange}
-						style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", flex: "2 1 280px" }}
+						className="px-2 py-2 rounded border border-gray-300 flex-1 min-w-[280px]"
 						required
 					/>
 					<input
@@ -105,7 +111,7 @@ const Foundation = () => {
 						placeholder="Event Date"
 						value={form.eventDate}
 						onChange={handleChange}
-						style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", flex: "1 1 180px" }}
+						className="px-2 py-2 rounded border border-gray-300 flex-1 min-w-[180px]"
 						required
 					/>
 					<input
@@ -114,55 +120,48 @@ const Foundation = () => {
 						placeholder="Location"
 						value={form.location}
 						onChange={handleChange}
-						style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", flex: "1 1 180px" }}
+						className="px-2 py-2 rounded border border-gray-300 flex-1 min-w-[180px]"
 						required
 					/>
 					<input
 						type="file"
 						accept="image/*"
 						onChange={handleImageChange}
-						style={{ flex: "1 1 180px" }}
+						className="flex-1 min-w-[180px]"
 						required
 					/>
-					<button type="submit" style={{ padding: "10px 24px", borderRadius: "4px", background: "#007bff", color: "#fff", border: "none", cursor: "pointer" }}>
+					<button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
 						Add Campaign
 					</button>
 				</form>
 				{form.image && (
-					<div style={{ marginTop: "12px" }}>
-						<img src={form.image} alt="Preview" style={{ height: "60px", borderRadius: "4px" }} />
+					<div className="mt-3">
+						<img src={form.image} alt="Preview" className="h-14 rounded" />
 					</div>
 				)}
 			</div>
 			{/* Campaign List */}
-			<div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+			<div className="flex flex-wrap gap-5">
 				{campaigns.map((campaign) => (
 					<div
 						key={campaign._id}
-						style={{
-							border: "1px solid #ddd",
-							borderRadius: "8px",
-							padding: "16px",
-							width: "300px",
-							background: "#fff",
-							boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-						}}
+						className="border border-gray-200 rounded-lg p-4 w-[300px] bg-white shadow-sm"
 					>
 						<img
 							src={campaign.image}
 							alt={campaign.title}
-							style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "6px" }}
+							className="w-full h-[120px] object-cover rounded-md"
 						/>
-						<h3 style={{ margin: "12px 0 6px" }}>{campaign.title}</h3>
-						<p style={{ color: "#555", fontSize: "14px" }}>{campaign.description}</p>
-						<div style={{ fontSize: "13px", color: "#888" }}>
+						<h3 className="mt-3 mb-1 text-lg font-semibold">{campaign.title}</h3>
+						<p className="text-gray-600 text-sm">{campaign.description}</p>
+						<div className="text-sm text-gray-500">
 							<strong>Date:</strong> {campaign.eventDate}<br />
 							<strong>Location:</strong> {campaign.location}
 						</div>
-						<div style={{ marginTop: "8px", fontSize: "13px", color: "#888" }}>
+						<div className="mt-2 text-sm text-gray-500">
 							<strong>Foundation:</strong> {campaign.foundationName}
 						</div>
-						<div style={{ marginTop: "8px", fontSize: "13px", color: "#888" }}>
+						<div className="mt-2 text-sm text-gray-500">
 							<strong>Participants:</strong> {campaign.participants?.length || 0}
 						</div>
 					</div>
