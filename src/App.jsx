@@ -7,7 +7,7 @@ import DashboardLayout from "./component/DashboardLayout";
 import ProtectedRoute from "./component/ProtectedRoute";
 import UserList from "./pages/UserList";
 import Tokens from "./pages/Tokens";
-import Charities from "./pages/Charities";
+import Campaign from "./pages/Campaign";
 import BannerAndNews from "./pages/BannerAndNews";
 import Settings from "./pages/Settings";
 import EmergencyControls from "./pages/EmergencyControls";
@@ -27,7 +27,7 @@ function App() {
             <Route path="user-list" element={<UserList />} />
             <Route path="tokens" element={<Tokens />} />
             <Route path="foundation" element={<Foundation />} />
-            <Route path="charities" element={<Charities />} />
+            <Route path="Campaign" element={<Campaign />} />
             <Route path="banner-and-news" element={<BannerAndNews />} />
             <Route path="settings" element={<Settings />} />
             <Route path="emergency-controls" element={<EmergencyControls />} />

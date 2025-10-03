@@ -74,7 +74,7 @@ const initialCharitiesData = [
 	},
 ];
 
-const Charities = () => {
+const Campaign = () => {
 	const [charities, setCharities] = useState(initialCharitiesData);
 	const [form, setForm] = useState({
 		name: "",
@@ -197,4 +197,4 @@ const Charities = () => {
 	);
 };
 
-export default Charities;
+export default Campaign;

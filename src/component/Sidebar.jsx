@@ -21,14 +21,14 @@ const Sidebar = () => {
                 <i className="fa fa-ticket"></i> <span> Tokens</span>
               </Link>
             </li>
-            <li>
-              <Link to="charities">
-                <i className="fa fa-heart"></i> <span> Charities  </span>
-              </Link>
-            </li>
               <li>
               <Link to="foundation">
                 <i className="fa fa-image"></i> <span> Foundation</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="Campaign">
+                <i className="fa fa-heart"></i> <span> Campaign  </span>
               </Link>
             </li>
             <li>
